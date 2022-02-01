@@ -4,22 +4,28 @@ import {
   Routes,
   Route,
 } from 'react-router-dom';
-import Users from './pages/Users';
-import NewUser from './pages/NewUser';
-import UserDetail from './pages/UserDetail';
-import UserReducer from "./reducers/user";
+import Users from 'pages/Users';
+import NewUser from 'pages/NewUser';
+import UserDetail from 'pages/UserDetail';
+import NewUsersModals from 'components/NewUsersModals';
+import { UserReducer, initialState} from "reducers/user";
+import { UserContextProvider } from "context/usersContext";
+import './App.css'
 
 const App = () => {
-  const [state, dispatch] = useReducer(UserReducer, {users: [{ id: 'a', name: 'a'}, { id: 'b', name: 'b'}]});
+  const [state, dispatch] = useReducer(UserReducer, initialState);
   return (
     <main className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Users state={state} dispatch={dispatch}/>} />
-          <Route path="new-user" element={<NewUser state={state} dispatch={dispatch} />} />
-          <Route path=":id" element={<UserDetail state={state} dispatch={dispatch} />} />
-        </Routes>
-      </BrowserRouter>
+      <UserContextProvider state={state} dispatch={dispatch}>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Users />} />
+              <Route path="new-user" element={<NewUser />} />
+              <Route path=":id" element={<UserDetail />} />
+            </Routes>
+            <NewUsersModals />
+          </BrowserRouter>
+      </UserContextProvider>
     </main>
   );
 }

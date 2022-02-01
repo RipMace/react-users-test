@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
 import { useNavigate } from "react-router-dom";
-import TextInput from "../../components/TextInput";
-import Friends from "../../components/Friends";
 import slugify from "slugify";
-import {useUserContext} from "../../context/usersContext";
-import Modal from "../../components/Modal";
+import TextInput from "components/TextInput";
+import Friends from "components/Friends";
+import {useUserContext} from "context/usersContext";
+import Modal from "components/Modal";
+import Alert from "components/Alert";
+import {filterUser, disableAddUser, onSaveUser} from "utils";
+import styles from "./styles.module.css";
 
 const NewUser = ({ removeModal }) => {
   const [name, setName] = useState('')
@@ -13,46 +16,37 @@ const NewUser = ({ removeModal }) => {
   const navigate = useNavigate();
   const { state, dispatch } = useUserContext()
 
-  const checkSaveNewUser = () => Math.random() < 0.5
-
   const onSave = () => {
-    let success = false;
-    let retryNum = 0;
-    while (!success && retryNum < 2) {
-      success = checkSaveNewUser()
-      if (success) {
+    onSaveUser(() => {
         dispatch({type: 'ADD_USER', newUser: { id: slugify(name), name, friends }})
         removeModal ? removeModal() : navigate('/')
-      }
-      retryNum++
-    }
-    if (!success){
-      setRetryModal(true)
-    }
+      },
+      () => setRetryModal(true)
+    )
   }
 
   const addFriend = newFriend => setFriends([...friends,newFriend ])
 
-  const removeFriend = id => setFriends(friends.filter(f => f.id !== id))
-
-  const canAddUser = (name = '', users) => !name.length || users.some(u => u.name === name)
+  const removeFriend = id => setFriends(friends.filter(filterUser(id)))
 
   return (
-    <>
-      <h1>NewUser</h1>
-      <TextInput id="new_name" label="Name" value={name} onChange={setName} />
-      <button onClick={onSave} disabled={canAddUser(name, state.users)}>Save</button>
+    <div className={styles.wrapper}>
+      <h1>New User</h1>
+      <div className={styles.insertName}>
+        <TextInput id="new_name" label="Name" value={name} onChange={setName} />
+        <button onClick={onSave} disabled={disableAddUser(name, state.users)}>Save</button>
+      </div>
       <Friends friends={friends} addFriend={addFriend} removeFriend={removeFriend} />
       {retryModal &&
         <Modal>
-          <div>
-            Something went wrong during the user creation, do you want to retry?
-            <button onClick={onSave}>Yes</button>
-            <button onClick={() => setRetryModal(false)}>No</button>
-          </div>
+          <Alert
+            text=" Something went wrong during the user creation, do you want to retry?"
+            onConfirm={onSave}
+            onRefuse={() => setRetryModal(false)}
+          />
         </Modal>
       }
-    </>
+    </div>
   )
 }
 

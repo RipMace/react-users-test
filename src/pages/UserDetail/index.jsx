@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from "react-router-dom";
-import TextInput from "../components/TextInput";
-import {useUserContext} from "../context/usersContext";
-import Friends from "../components/Friends";
+import TextInput from "components/TextInput";
+import {useUserContext} from "context/usersContext";
+import Friends from "components/Friends";
+import { disableAddUser, findUser, filterUser } from "utils";
+import styles from "./styles.module.css";
 
 const UserDetail = () => {
   const navigate = useNavigate();
@@ -11,7 +13,7 @@ const UserDetail = () => {
   const { state, dispatch } = useUserContext()
 
   useEffect(() => {
-    const user = state.users.find((user) => user.id === id)
+    const user = state.users.find(findUser(id))
     setUser(user);
   }, [id]);
 
@@ -20,20 +22,24 @@ const UserDetail = () => {
     navigate('/')
   }
 
-  const canAddUser = (name = '', users) => !name.length || users.filter(u => u.id !== id).some(u => u.name === name)
+  const updateName = name => setUser({ ...user, name})
+  const addFriend = newFriend => setUser({ ...user, friends: [...user.friends, newFriend ]})
+  const removeFriend = id => setUser({ ...user, friends: user.friends.filter(filterUser(id))})
 
   return (
-    <>
+    <div className={styles.wrapper}>
       <h1>User: {user.name}</h1>
-      <TextInput id="name" label="Name" value={user.name} onChange={(name) => setUser({ ...user, name})} />
-      <button onClick={onEdit} disabled={canAddUser(user.name, state.users)}>Modifica</button>
+      <div className={styles.editName}>
+        <TextInput id="name" label="Name" value={user.name} onChange={updateName} />
+        <button onClick={onEdit} disabled={disableAddUser(user.name, state.users, id)}>Modifica</button>
+      </div>
       <Friends
-        users={state.users?.filter(user => user.id !== id)}
+        users={state.users?.filter(filterUser(id))}
         friends={user.friends}
-        addFriend={newFriend => setUser({ ...user, friends: [...user.friends, newFriend ]})}
-        removeFriend={id => setUser({ ...user, friends: user.friends.filter(f => f.id !== id)})}
+        addFriend={addFriend}
+        removeFriend={removeFriend}
       />
-    </>
+    </div>
   )
 }
 

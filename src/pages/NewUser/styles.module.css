@@ -3,7 +3,7 @@
     width: 300px;
 }
 
-.insert-name {
+.insertName {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;

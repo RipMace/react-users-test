@@ -1,13 +1,11 @@
 import React from 'react'
 
-const TextInput = ({ id, label, value, onChange }) => {
+const TextInput = ({ label, id, value, onChange }) => {
   return (
-    <div>
+    <>
       <label>{label}</label>
-      <input id={id} type="text" value={value} onChange={(e) => onChange(e.target.value)}/>
-    </div>
-
-
+      <input id={id} data-testid={id} placeholder={`Insert ${label}`} type="text" value={value} onChange={(e) => onChange(e.target.value)}/>
+    </>
   )
 }
 
