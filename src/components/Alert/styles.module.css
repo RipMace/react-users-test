@@ -1,0 +1,15 @@
+.wrapper {
+  border: 2px solid gray;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+.friend {
+  display: flex;
+  align-items: center;
+  margin: 5px;
+}
+
+.friend p {
+  margin-right: 15px;
+}
